@@ -143,4 +143,36 @@ export class AeriesApi {
 		);
 		return await resp.json();
 	}
+	public async predictGrade(classId: number, category: string, score: number, maxScore: number, assignmentNumber: number = -1) {
+		if (!this.isInitialized()) throw new UninitializedApiError();
+		let resp = await fetch(
+			this.genRequest(
+				"POST",
+				'/calculategradebookscores',
+				{
+					gn: {
+						Assignments: [{
+							AssignmentNumber: assignmentNumber,
+							Category: category,
+							Mark: "",
+							Score: score,
+							MaxScore: maxScore
+						}],
+						GradebookNumber: classId,
+						TermCode: "F"
+					},
+					id: get(this.authedStudent)!.Student.Demographics.StudentID,
+					sc: get(this.authedStudent)!.Student.Demographics.SchoolCode
+				}
+			)
+		);
+		return await resp.json();
+	}
+	public async getReportCards() {
+		if (!this.isInitialized()) throw new UninitializedApiError();
+		let resp = await fetch(
+			this.genRequest("GET", `/reportcardhistory/${get(this.authedStudent)!.Student.Demographics.StudentID}`)
+		);
+		return await resp.json();
+	}
 }
